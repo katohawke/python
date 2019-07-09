@@ -3,5 +3,5 @@
 age = 17
 name = 'Kato'
 
-print('{0}\'s age -- {1}.'.format(name, age))
-print('Why is {0} having fun with this Python?'.format(name))
+print('{}\'s age -- {}.'.format(name, age))
+print('Why is {} having fun with this Python?'.format(name))
