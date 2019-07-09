@@ -10,3 +10,5 @@ elif guess < number:
     print('No, the hidden number is a little more than that.')
 else:
     print('No, the hidden number is a little less than that.')
+
+print('Completed')
