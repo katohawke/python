@@ -1,3 +1,5 @@
+# !/usr/bin/env python3
+
 import pyowm
 import datetime
 from pyowm.exceptions import api_response_error
