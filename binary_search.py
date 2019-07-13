@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+
 def binary_search(sorted_array, item):
     low = 0
     high = len(sorted_array) - 1

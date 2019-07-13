@@ -32,10 +32,7 @@ def hangman():
             print(' '.join(board))
             win = True
             break
-        
     if not win:
         print('\n'.join(stages[0:wrong]))
         print('Ви програли! Загадиним словом було: {}'.format(word))
-            
-    
 hangman()
