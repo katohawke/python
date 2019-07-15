@@ -26,7 +26,7 @@ class Teacher(SchoolMember):
 		print('Salary: "{0:d}"'.format(self.salary))
 
 
-class Student(object):
+class Student(SchoolMember):
 	"""docstring for Student"""
 	def __init__(self, name, age, marks):
 		SchoolMember.__init__(self, name, age)
