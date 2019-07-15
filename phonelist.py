@@ -65,6 +65,8 @@ class PhoneList:
 			print('Успешно удален.')
 		except EOFError:
 			print('Телефонная книга пуста. Нечего удалять.')
+		except KeyError:
+			print('Вы не ввели имя.')
 
 	def find(data):
 		PhoneList.open(PhoneList.temporary)
@@ -86,6 +88,20 @@ class PhoneList:
 				return key
 		return default
 
+def format_personal_info(text):
+	personal_info = input(text)
+	personal = personal_info.split(' ')
+	new_list = []
+	for i in range(len(personal)):
+		try:
+			number = int(personal[i])
+			del personal[i]
+			new_list.append(number)
+		except ValueError:
+			continue
+	new_list.append(' '.join(personal))
+	return new_list
+
 
 def main():
 	while True:
@@ -93,14 +109,17 @@ def main():
 delete - удалить контактные данные
 change - изменить контактные данные
 find - найти контакные данные
-show - показать телефонную книгу\n''')
+show - показать телефонную книгу
+exit - выйти \n''')
 		print()
 		if line:
 			choice = line
 			if choice.lower() == 'add':
-				personal_info = input('Введите контактные данные (имя и номер): ')
-				personal = personal_info.split(' ')
-				person = PhoneList(personal[0], personal[1])
+				personal = format_personal_info('Введите контактные данные (имя и номер): ')
+				try:
+					person = PhoneList(personal[1], personal[0])
+				except IndexError:
+					print('Вы не ввели данные.')
 				PhoneList.add()
 			
 			elif choice.lower() == 'delete':
@@ -108,16 +127,20 @@ show - показать телефонную книгу\n''')
 				PhoneList.delete(personal_info)
 			
 			elif choice.lower() == 'change':
-				personal_info = input('Введите контактные данные для изменения (имя и номер): ')
-				personal = personal_info.split(' ')
+				personal = format_personal_info('Введите контактные данные для изменения (имя и номер): ')
 				PhoneList.change(personal[0], personal[1])
 			
 			elif choice.lower() == 'find':
 				personal_info = input('Введите имя или номер для поиска: ')
 				PhoneList.find(personal_info)
-			
 			elif choice.lower() == 'show':
+
 				PhoneList.show()
+			elif choice.lower() == 'exit':
+				print('Вы успешно вышли.')
+				break
+			else:
+				print('Не правильная команда.')
 			print()
 		else:
 			break
