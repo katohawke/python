@@ -94,7 +94,6 @@ class MainMenu(Frame):
         Frame.__init__(self, parent)
         self.parent = parent
         self.viewable_objects = []
-        self.message = StringVar()
         self.initUI()
 
     def initUI(self):
@@ -150,40 +149,39 @@ class MainMenu(Frame):
         win = Toplevel(self)
         win.title('Phone List')
         win.resizable(False, False)
-        self.entry = Entry(win, textvariable=self.message)
-        self.entry.grid(row=0, column=1, sticky=W)
+        Label(win, text='Name').grid(row=0, column=0)
+        Label(win, text='Phone').grid(row=1, column=0)
+        self.entry_name = Entry(win, textvariable=StringVar)
+        self.entry_name.grid(row=0, column=1, sticky=W)
+        self.entry_phone = Entry(win, textvariable=StringVar)
+        self.entry_phone.grid(row=1, column=1)
         button = Button(win, text=text, command=function)
-        button.grid(row=1, columnspan=2)
+        button.grid(row=2, columnspan=4)
 
     def format_personal_info(self):
-        personal_info = self.entry.get()
-        personal = personal_info.split(' ')
-        new_list = []
-        for i in range(len(personal)):
-            try:
-                int(personal[i])
-                number = personal[i]
-                del personal[i]
-                new_list.append(number)
-            except ValueError:
-                continue
-        new_list.append(' '.join(personal))
-        return new_list
+        name = self.entry_name.get()
+        phone = self.entry_phone.get()
+
+        return (name, phone)
 
     def add(self):
-        personal = self.format_personal_info()
+        person = self.format_personal_info()
         try:
-            PhoneList(personal[1], personal[0])
-            PhoneList.add()
+            if person[0] in PhoneList.temporarylist:
+                pass
+            else:
+                PhoneList(person[0], person[1])
+                PhoneList.add()
         except IndexError:
             pass
 
+
     def delete(self):
-        name = self.entry.get()
+        name = self.entry_name.get()
         PhoneList.delete(name)
 
     def find(self):
-        data = self.entry.get()
+        data = self.entry_name.get()
         message = PhoneList.find(data)
         messagebox.showinfo('Find', message)
 
@@ -195,10 +193,12 @@ class MainMenu(Frame):
 
     def onFind(self):
         self.newWindow('Find contact', self.find)
+        self.entry_phone.grid_forget()
 
 
     def onDelete(self):
         self.newWindow('Delete contact', self.delete)
+        self.entry_phone.grid_forget()
 
 
 
