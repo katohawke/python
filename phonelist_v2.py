@@ -34,31 +34,58 @@ class PhoneList:
     phonelistfile = 'phonelist.data'
 
     def __init__(self, name, phone):
-
         self.name = name
         self.phone = phone
         PhoneList.phonelist[name] = phone
 
     @staticmethod
     def open(namelist):
-
         with open(PhoneList.phonelistfile, 'rb') as f:
             namelist.update(pickle.load(f))
 
     @staticmethod
     def save(namelist):
-
         with open(PhoneList.phonelistfile, 'wb') as f:
             pickle.dump(namelist, f)
 
     @staticmethod
     def add():
-
         PhoneList.save(PhoneList.phonelist)
         PhoneList.open(PhoneList.temporarylist)
         PhoneList.save(PhoneList.temporarylist)
 
+    @staticmethod
+    def delete(name):
+        try:
+            PhoneList.open(PhoneList.temporarylist)
+            del PhoneList.temporarylist[name]
+            PhoneList.save(PhoneList.temporarylist)
+        except EOFError:
+            pass
+        except KeyError:
+            pass
 
+    @staticmethod
+    def __key_with_value(find_value, default=None):
+        PhoneList.open(PhoneList.temporarylist)
+        for key, value in PhoneList.temporarylist.items():
+            if value == find_value:
+                return key
+        return default
+
+    @staticmethod
+    def find(data):
+        PhoneList.open(PhoneList.temporarylist)
+        if data in PhoneList.temporarylist:
+            name = data
+            phone = PhoneList.temporarylist[name]
+            return '{0}: {1}.'.format(name, phone)
+        elif data in PhoneList.temporarylist.values():
+            phone = data
+            name = PhoneList.__key_with_value(phone, default='')
+            return '{0}: {1}.'.format(name, phone)
+        else:
+            return 'None'
 
 class MainMenu(Frame):
 
@@ -100,7 +127,6 @@ class MainMenu(Frame):
         self.frame_phone_list = frame_phone_list
 
     def onShow(self):
-
         try:
             PhoneList.open(PhoneList.temporarylist)
             if len(PhoneList.temporarylist) != 0:
@@ -114,23 +140,22 @@ class MainMenu(Frame):
             pass
 
     def onHide(self):
-
         for object_item in self.viewable_objects:
             object_item.remove()
 
     def onExit(self):
-
         self.quit()
 
-    def newWindow(self):
-        self.win = Toplevel(self)
-        self.entry = Entry(self.win, textvariable=self.message)
-        self.entry.pack(fill=BOTH)
-        self.button = Button(self.win, text='Add contact', command = self.add())
-        self.button.pack(fill=BOTH)
+    def newWindow(self, text, function):
+        win = Toplevel(self)
+        win.title('Phone List')
+        win.resizable(False, False)
+        self.entry = Entry(win, textvariable=self.message)
+        self.entry.grid(row=0, column=1, sticky=W)
+        button = Button(win, text=text, command=function)
+        button.grid(row=1, columnspan=2)
 
     def format_personal_info(self):
-
         personal_info = self.entry.get()
         personal = personal_info.split(' ')
         new_list = []
@@ -147,27 +172,33 @@ class MainMenu(Frame):
 
     def add(self):
         personal = self.format_personal_info()
-
         try:
             PhoneList(personal[1], personal[0])
             PhoneList.add()
         except IndexError:
             pass
 
+    def delete(self):
+        name = self.entry.get()
+        PhoneList.delete(name)
+
+    def find(self):
+        data = self.entry.get()
+        message = PhoneList.find(data)
+        messagebox.showinfo('Find', message)
+
     def onAdd(self):
-        self.newWindow()
-
-
+        self.newWindow('Add contact', self.add)
 
     def onChange(self):
         pass
 
     def onFind(self):
-        pass
+        self.newWindow('Find contact', self.find)
 
 
     def onDelete(self):
-        pass
+        self.newWindow('Delete contact', self.delete)
 
 
 
