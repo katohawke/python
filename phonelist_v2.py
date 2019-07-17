@@ -3,7 +3,28 @@
 
 
 from tkinter import *
+from tkinter import messagebox
 import pickle
+
+
+class List:
+
+    row = 0
+
+    def __init__(self, main, name, phone):
+
+        self.main = main
+        self.name = name
+        self.phone = phone
+        self.label_list_name = Label(main, text=name)
+        self.label_list_phone = Label(main, text=phone)
+        self.label_list_name.grid(row=List.row, column=0)
+        self.label_list_phone.grid(row=List.row, column=1)
+        List.row += 1
+
+    def remove(self):
+        self.label_list_phone.grid_forget()
+        self.label_list_name.grid_forget()
 
 
 class PhoneList:
@@ -37,79 +58,121 @@ class PhoneList:
         PhoneList.open(PhoneList.temporarylist)
         PhoneList.save(PhoneList.temporarylist)
 
-    @staticmethod
-    def show(main):
+
+
+class MainMenu(Frame):
+
+    def __init__(self, parent):
+
+        Frame.__init__(self, parent)
+        self.parent = parent
+        self.viewable_objects = []
+        self.message = StringVar()
+        self.initUI()
+
+    def initUI(self):
+
+        self.parent.title('Phone List')
+
+        menubar = Menu(self.parent)
+        self.parent.configure(menu=menubar)
+
+        fileMenu = Menu(menubar, tearoff=0)
+        menubar.add_cascade(label = 'File', menu=fileMenu)
+        fileMenu.add_command(label='New')
+        fileMenu.add_command(label='Exit', command=self.onExit)
+
+        editMenu = Menu(menubar, tearoff=0)
+        menubar.add_cascade(label = 'Edit', menu=editMenu)
+        editMenu.add_command(label = 'Add', command=self.onAdd)
+        editMenu.add_command(label = 'Change', command=self.onChange)
+        editMenu.add_command(label='FInd', command=self.onFind)
+        editMenu.add_command(label='Delete', command=self.onDelete)
+
+        viewMenu = Menu(menubar, tearoff=0)
+        menubar.add_cascade(label='View', menu=viewMenu)
+        viewMenu.add_command(label='Show', command=self.onShow)
+        viewMenu.add_command(label='Hide', command=self.onHide)
+
+        frame_phone_list = Frame(self.parent)
+        frame_phone_list.pack()
+
+        self.frame_phone_list = frame_phone_list
+
+    def onShow(self):
+
         try:
             PhoneList.open(PhoneList.temporarylist)
             if len(PhoneList.temporarylist) != 0:
-                List(main, name='Name', phone='Phone')
+                object_item = List(self.frame_phone_list, name='NAME', phone='PHONE')
+                self.viewable_objects.append(object_item)
                 for person in PhoneList.temporarylist:
-                    List(main, name=person, phone=PhoneList.temporarylist[person])
+                    object_item = List(self.frame_phone_list, name=person, phone=PhoneList.temporarylist[person])
+                    self.viewable_objects.append(object_item)
+            List.row = 0
         except EOFError:
             pass
 
+    def onHide(self):
 
-class File:
+        for object_item in self.viewable_objects:
+            object_item.remove()
 
-    def __init__(self, main):
+    def onExit(self):
 
-        self.file = Menu(main)
-        main.add_cascade(label='File', menu=self.file)
-        self.file.add_command(label='New')
+        self.quit()
+
+    def newWindow(self):
+        self.win = Toplevel(self)
+        self.entry = Entry(self.win, textvariable=self.message)
+        self.entry.pack(fill=BOTH)
+        self.button = Button(self.win, text='Add contact', command = self.add())
+        self.button.pack(fill=BOTH)
+
+    def format_personal_info(self):
+
+        personal_info = self.entry.get()
+        personal = personal_info.split(' ')
+        new_list = []
+        for i in range(len(personal)):
+            try:
+                int(personal[i])
+                number = personal[i]
+                del personal[i]
+                new_list.append(number)
+            except ValueError:
+                continue
+        new_list.append(' '.join(personal))
+        return new_list
+
+    def add(self):
+        personal = self.format_personal_info()
+
+        try:
+            PhoneList(personal[1], personal[0])
+            PhoneList.add()
+        except IndexError:
+            pass
+
+    def onAdd(self):
+        self.newWindow()
 
 
-class Edit:
 
-    def __init__(self, main):
+    def onChange(self):
+        pass
 
-        self.edit = Menu(main)
-        main.add_cascade(label='Edit', menu=self.edit)
-        self.edit.add_command(label='Add')
-        self.edit.add_command(label='Change')
-        self.edit.add_command(label='Find')
-        self.edit.add_command(label='Delete')
+    def onFind(self):
+        pass
 
 
-class List:
+    def onDelete(self):
+        pass
 
-    row = 0
-
-    def __init__(self, main, name, phone):
-
-        self.label_list_name = Label(main, text=name)
-        self.label_list_phone = Label(main, text=phone)
-        self.label_list_name.grid(row=List.row, column=0)
-        self.label_list_phone.grid(row=List.row, column=1)
-        List.row += 1
-
-
-class View:
-
-    global frame_list
-
-    def __init__(self, main):
-
-        self.view = Menu(main)
-        main.add_cascade(label='View', menu=self.view)
-        self.view.add_command(label='Show', command=View.__show(main))
-
-    @staticmethod
-    def __show(main):
-        PhoneList.show(main)
 
 
 root = Tk()
 
-menu = Menu(root)
-root.configure(menu=menu)
-
-file = File(menu)
-edit = Edit(menu)
-show = View(menu)
-
-frame_list = Frame(root)
-frame_list.pack()
-
-List(frame_list, 'Name', 'Phone')
+app = MainMenu(root)
 
 root.mainloop()

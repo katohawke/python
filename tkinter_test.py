@@ -1,19 +1,15 @@
-#!/usr/bin/env/python
-# coding=utf-8
+#!/usr/bin/env python3
 
 from tkinter import *
-import time
-
 
 def button_clicked():
-    button['text'] = time.strftime('%H:%M:%S')
+	print("Hello World!")
 
+mw = Tk()
+mw.title('Hello World!')
+mw.geometry('300x40')
 
-root = Tk()
+button = Button(mw, text="Press Me", command=button_clicked)
+button.pack(fill=BOTH)
 
-button = Button(root)
-button.configure(text=time.strftime('%H:%M:%S'), command=button_clicked)
-
-button.pack()
-
-root.mainloop()
+mw.mainloop()
